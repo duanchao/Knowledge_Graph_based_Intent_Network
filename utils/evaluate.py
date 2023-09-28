@@ -7,7 +7,7 @@ import multiprocessing
 import heapq
 from time import time
 
-cores = multiprocessing.cpu_count() // 2
+#cores = multiprocessing.cpu_count() // 2
 
 args = parse_args()
 Ks = eval(args.Ks)
@@ -95,10 +95,10 @@ def test_one_user(x):
 
     test_items = list(all_items - set(training_items))
 
-    if args.test_flag == 'part':
-        r, auc = ranklist_by_heapq(user_pos_test, test_items, rating, Ks)
-    else:
-        r, auc = ranklist_by_sorted(user_pos_test, test_items, rating, Ks)
+    #if args.test_flag == 'part':
+     #   r, auc = ranklist_by_heapq(user_pos_test, test_items, rating, Ks)
+   # else:
+    r, auc = ranklist_by_sorted(user_pos_test, test_items, rating, Ks)
 
     return get_performance(user_pos_test, r, auc, Ks)
 
@@ -118,7 +118,7 @@ def test(model, user_dict, n_params):
     train_user_set = user_dict['train_user_set']
     test_user_set = user_dict['test_user_set']
 
-    pool = multiprocessing.Pool(cores)
+    #pool = multiprocessing.Pool(cores)
 
     u_batch_size = BATCH_SIZE
     i_batch_size = BATCH_SIZE
@@ -165,8 +165,10 @@ def test(model, user_dict, n_params):
             rate_batch = model.rating(u_g_embeddings, i_g_embddings).detach().cpu()
 
         user_batch_rating_uid = zip(rate_batch, user_list_batch)
-        batch_result = pool.map(test_one_user, user_batch_rating_uid)
-        count += len(batch_result)
+        #batch_result = pool.map(test_one_user, user_batch_rating_uid)
+        batch_result = map(test_one_user, user_batch_rating_uid)
+        
+        count += len(list(batch_result))
 
         for re in batch_result:
             result['precision'] += re['precision']/n_test_users
